@@ -1,0 +1,34 @@
+city_key,city,state,region,is_metro
+bengaluru,Bengaluru,Karnataka,South,true
+bangalore,Bengaluru,Karnataka,South,true
+mumbai,Mumbai,Maharashtra,West,true
+bombay,Mumbai,Maharashtra,West,true
+new delhi,New Delhi,Delhi,North,true
+delhi,New Delhi,Delhi,North,true
+hyderabad,Hyderabad,Telangana,South,true
+chennai,Chennai,Tamil Nadu,South,true
+madras,Chennai,Tamil Nadu,South,true
+pune,Pune,Maharashtra,West,true
+poona,Pune,Maharashtra,West,true
+kolkata,Kolkata,West Bengal,East,true
+calcutta,Kolkata,West Bengal,East,true
+gurugram,Gurugram,Haryana,North,true
+gurgaon,Gurugram,Haryana,North,true
+ahmedabad,Ahmedabad,Gujarat,West,false
+amdavad,Ahmedabad,Gujarat,West,false
+jaipur,Jaipur,Rajasthan,North,false
+lucknow,Lucknow,Uttar Pradesh,North,false
+kochi,Kochi,Kerala,South,false
+cochin,Kochi,Kerala,South,false
+mysuru,Mysuru,Karnataka,South,false
+mysore,Mysuru,Karnataka,South,false
+chandigarh,Chandigarh,Chandigarh,North,false
+indore,Indore,Madhya Pradesh,Central,false
+coimbatore,Coimbatore,Tamil Nadu,South,false
+nagpur,Nagpur,Maharashtra,West,false
+bhubaneswar,Bhubaneswar,Odisha,East,false
+bhubaneshwar,Bhubaneswar,Odisha,East,false
+guwahati,Guwahati,Assam,East,false
+gauhati,Guwahati,Assam,East,false
+visakhapatnam,Visakhapatnam,Andhra Pradesh,South,false
+vizag,Visakhapatnam,Andhra Pradesh,South,false

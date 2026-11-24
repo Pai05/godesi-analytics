@@ -1,0 +1,100 @@
+models:
+  - name: stg_ecom__customers
+    description: Website customers. One row per customer.
+    columns:
+      - name: customer_id
+        description: Primary key, e.g. C000001.
+        data_tests: [unique, not_null]
+      - name: email
+        description: Lower-cased email.
+        data_tests: [not_null]
+      - name: phone_number
+        description: Last 10 digits of the phone number, whatever format it arrived in.
+      - name: signed_up_at
+        data_tests: [not_null]
+      - name: city_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('city_mapping')
+                field: city_key
+      - name: acquisition_source
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["organic", "instagram", "google_ads", "referral", "influencer"]
+
+  - name: stg_ecom__orders
+    description: Website orders, latest status. One row per order (duplicates and older statuses removed).
+    columns:
+      - name: order_id
+        description: Primary key, e.g. D2C-0000001.
+        data_tests: [unique, not_null]
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_ecom__customers')
+                field: customer_id
+      - name: ordered_at
+        description: Order time in IST. NULL would mean a date format the parse_timestamp macro does not know.
+        data_tests: [not_null]
+      - name: order_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["placed", "shipped", "delivered", "cancelled", "returned"]
+      - name: city_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('city_mapping')
+                field: city_key
+
+  - name: stg_ecom__order_items
+    description: Website order lines. One row per order line.
+    columns:
+      - name: order_item_id
+        description: Primary key, e.g. D2C-0000001-1.
+        data_tests: [unique, not_null]
+      - name: order_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_ecom__orders')
+                field: order_id
+      - name: sku_id
+        description: >
+          Should always be a known SKU. A few raw rows reference GD-9999, which does not
+          exist: this test is set to WARN so you can see it without stopping the build.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_erp__products')
+                field: sku_id
+              config:
+                severity: warn
+      - name: quantity
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+      - name: unit_price_inr
+        description: Price per unit in INR after removing '₹' / 'Rs.' prefixes.
+        data_tests: [not_null]
+
+  - name: stg_ecom__returns
+    description: Returned website order lines. One row per return.
+    columns:
+      - name: return_id
+        data_tests: [unique, not_null]
+      - name: order_item_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_ecom__order_items')
+                field: order_item_id
+      - name: refund_inr
+        data_tests: [not_null]

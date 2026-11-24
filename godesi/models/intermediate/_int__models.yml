@@ -1,0 +1,53 @@
+models:
+  - name: int_marketplace_order_items__sku_mapped
+    description: Marketplace order lines with seller_sku translated to a GoDesi sku_id. One row per order line.
+    columns:
+      - name: marketplace_order_item_id
+        data_tests: [unique, not_null]
+      - name: sku_id
+        description: NULL would mean a seller_sku that is neither a known barcode nor a known sku_id.
+        data_tests: [not_null]
+      - name: matched_on
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["barcode", "sku_id"]
+
+  - name: int_sales_lines__unioned
+    description: Website, marketplace and offline order lines in one shape. One row per order line.
+    columns:
+      - name: sales_line_id
+        description: Primary key. Source line id (D2C-..., 402-..., OD..., BLK..., INV-...).
+        data_tests: [unique, not_null]
+      - name: channel
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('channel_mapping')
+                field: channel
+      - name: ordered_at
+        data_tests: [not_null]
+      - name: net_amount_inr
+        data_tests: [not_null]
+
+  - name: int_sales_lines__enriched
+    description: >
+      All order lines with product, geography, channel type, revenue, cost and profit.
+      One row per order line. Cancelled and returned lines keep their row but have 0 revenue.
+    columns:
+      - name: sales_line_id
+        data_tests: [unique, not_null]
+      - name: region
+        description: From the city_mapping seed. NULL means a city spelling missing from the seed.
+        data_tests: [not_null]
+      - name: category
+        description: NULL for the few lines with an unknown sku_id (GD-9999) - warn only.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: net_revenue_inr
+        description: Revenue we keep, INR. 0 for cancelled or returned lines.
+      - name: gross_profit_inr
+        description: net_revenue_inr - cogs_inr - commission_cost_inr.

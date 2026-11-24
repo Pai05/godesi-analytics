@@ -1,0 +1,31 @@
+seeds:
+  - name: city_mapping
+    description: Every city spelling seen in the sources mapped to one canonical city, state and region.
+    config:
+      column_types:
+        is_metro: boolean
+    columns:
+      - name: city_key
+        description: Lower-case, trimmed spelling as it appears in the data.
+        data_tests: [unique, not_null]
+
+  - name: channel_mapping
+    description: Sales channels and their type (D2C, Marketplace, Quick Commerce, Offline).
+    columns:
+      - name: channel
+        data_tests: [unique, not_null]
+
+  - name: festival_calendar
+    description: Festival dates used to flag peak-season days.
+    config:
+      column_types:
+        festival_date: date
+    columns:
+      - name: festival_date
+        data_tests: [unique, not_null]
+
+  - name: brand_mapping
+    description: Brand spellings in Open Food Facts (punctuation-free key) mapped to one brand name.
+    columns:
+      - name: brand_key
+        data_tests: [unique, not_null]

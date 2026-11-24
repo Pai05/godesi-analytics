@@ -1,0 +1,44 @@
+models:
+  - name: stg_marketplace__orders
+    description: Marketplace orders, latest status. One row per marketplace order.
+    columns:
+      - name: marketplace_order_id
+        data_tests: [unique, not_null]
+      - name: channel
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["amazon", "flipkart", "blinkit", "zepto", "swiggy_instamart"]
+      - name: ordered_at
+        description: Order time in IST (Amazon's ISO format and the others both parsed).
+        data_tests: [not_null]
+      - name: order_status
+        description: Lower-cased (Flipkart sends DELIVERED, others delivered).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["placed", "shipped", "delivered", "cancelled", "returned"]
+      - name: city_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('city_mapping')
+                field: city_key
+
+  - name: stg_marketplace__order_items
+    description: Marketplace order lines, exact duplicates removed. One row per order line.
+    columns:
+      - name: marketplace_order_item_id
+        description: marketplace_order_id + '-' + line_number.
+        data_tests: [unique, not_null]
+      - name: marketplace_order_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_marketplace__orders')
+                field: marketplace_order_id
+      - name: seller_sku
+        description: Barcode (Amazon, Flipkart) or GoDesi sku_id (quick commerce), upper-cased and trimmed.
+        data_tests: [not_null]
+      - name: unit_price_inr
+        data_tests: [not_null]

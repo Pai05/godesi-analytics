@@ -1,0 +1,30 @@
+models:
+  - name: stg_off__products
+    description: >
+      Open Food Facts products sold in India, ~25 useful columns, typed. One row per barcode.
+      Real community data, so expect gaps: about half the rows have no nutrition values.
+    columns:
+      - name: barcode
+        description: Product barcode (OFF 'code'). Primary key.
+        data_tests: [unique, not_null]
+      - name: brand_key
+        description: First brand, lower-case, letters and digits only. Join key for the brand_mapping seed.
+      - name: is_godesi
+        description: True when any listed brand is GoDesi.
+      - name: net_quantity
+        description: Pack size parsed from free text ('500 g', '1kg', '5 Ltr'), in grams or ml.
+      - name: nutriscore_grade
+        description: a (best) to e (worst). NULL when OFF says unknown / not-applicable.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["a", "b", "c", "d", "e"]
+      - name: sugars_100g
+        description: Sugar per 100 g. Community-entered, so a few values are impossible (warn only).
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 100
+              config:
+                severity: warn

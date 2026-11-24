@@ -34,3 +34,105 @@ models:
         description: True if the SKU is currently sold.
       - name: updated_at
         description: When this version of the product record was last changed in the ERP.
+
+  - name: stg_erp__distributors
+    description: Distributors. One row per distributor.
+    columns:
+      - name: distributor_id
+        description: Primary key, e.g. DST-001.
+        data_tests: [unique, not_null]
+      - name: city_key
+        description: Lower-case city for joining to the city_mapping seed.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('city_mapping')
+                field: city_key
+
+  - name: stg_erp__stores
+    description: Retail stores. One row per store.
+    columns:
+      - name: store_id
+        description: Primary key, e.g. ST-00001.
+        data_tests: [unique, not_null]
+      - name: store_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Kirana", "Modern Trade", "Sweet Shop"]
+      - name: distributor_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_erp__distributors')
+                field: distributor_id
+      - name: city_key
+        description: Lower-case city; raw spellings vary (Bangalore / BANGALORE / Bengaluru).
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('city_mapping')
+                field: city_key
+
+  - name: stg_erp__promotions
+    description: Promotions calendar. One row per promo code.
+    data_tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "end_date >= start_date"
+    columns:
+      - name: promo_code
+        data_tests: [unique, not_null]
+      - name: promo_channel
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["website", "amazon", "flipkart", "quick_commerce", "all"]
+      - name: discount_pct
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 50
+
+  - name: stg_erp__invoices
+    description: Distributor-to-store invoices. One row per invoice.
+    columns:
+      - name: invoice_id
+        data_tests: [unique, not_null]
+      - name: invoice_date
+        description: Parsed from DD-MM-YYYY text. NULL here means the format changed.
+        data_tests: [not_null]
+      - name: store_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_erp__stores')
+                field: store_id
+
+  - name: stg_erp__invoice_lines
+    description: Invoice lines. One row per invoice line.
+    columns:
+      - name: invoice_line_id
+        description: invoice_id + '-' + line_no.
+        data_tests: [unique, not_null]
+      - name: invoice_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_erp__invoices')
+                field: invoice_id
+      - name: sku_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_erp__products')
+                field: sku_id
+      - name: quantity
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+      - name: unit_price_inr
+        data_tests: [not_null]

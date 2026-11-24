@@ -1,0 +1,95 @@
+models:
+  - name: dim_date
+    description: Calendar Jan 2024 - Dec 2025. One row per day, with Indian fiscal year and festival flags.
+    columns:
+      - name: date_day
+        data_tests: [unique, not_null]
+      - name: fiscal_year
+        description: Indian financial year (April-March). 2024-05-10 -> FY25.
+      - name: is_festival_season
+        description: True when Holi, Raksha Bandhan or Diwali falls within the next 14 days.
+
+  - name: dim_products
+    description: GoDesi products. One row per SKU, with real Open Food Facts nutrition where available.
+    columns:
+      - name: sku_id
+        data_tests: [unique, not_null]
+      - name: mrp_margin_pct
+        description: (MRP - unit cost) / MRP, in percent.
+
+  - name: dim_customers
+    description: Website customers. One row per customer, with lifetime stats and cohort.
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+      - name: cohort_month
+        description: Month of the customer's first non-cancelled order. NULL for prospects.
+      - name: customer_segment
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Prospect", "One-time", "Repeat", "Loyal"]
+
+  - name: dim_channels
+    description: Sales channels. One row per channel.
+    columns:
+      - name: channel
+        data_tests: [unique, not_null]
+
+  - name: dim_geography
+    description: Cities. One row per canonical city.
+    columns:
+      - name: city
+        data_tests: [unique, not_null]
+
+  - name: fct_order_items
+    description: All order lines from every channel. Grain - one row per order line.
+    columns:
+      - name: sales_line_id
+        data_tests: [unique, not_null]
+      - name: order_date
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_day
+      - name: channel
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_channels')
+                field: channel
+      - name: sku_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: sku_id
+              config:
+                severity: warn      # the 5 GD-9999 lines
+      - name: customer_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: city
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_geography')
+                field: city
+      - name: net_revenue_inr
+        description: Revenue kept, INR (0 if cancelled or returned).
+
+  - name: fct_orders
+    description: Orders from every channel. Grain - one row per order (invoice for offline).
+    columns:
+      - name: order_id
+        data_tests: [unique, not_null]
+      - name: line_count
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
