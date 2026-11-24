@@ -31,6 +31,8 @@ models:
       +materialized: table
       +schema: marts
       +tags: ["marts"]
+      +grants:                  # BI tools read the marts through the REPORTER role
+        select: ["REPORTER"]
 
 seeds:
   godesi:

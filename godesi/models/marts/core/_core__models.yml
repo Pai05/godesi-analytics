@@ -81,7 +81,9 @@ models:
                 to: ref('dim_geography')
                 field: city
       - name: net_revenue_inr
-        description: Revenue kept, INR (0 if cancelled or returned).
+        description: '{{ doc("net_revenue_inr") }}'
+      - name: gross_profit_inr
+        description: '{{ doc("gross_profit_inr") }}'
 
   - name: fct_orders
     description: Orders from every channel. Grain - one row per order (invoice for offline).

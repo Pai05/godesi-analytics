@@ -44,6 +44,7 @@ final as (
         iff(is_cancelled, 0, commission_inr)                                as commission_cost_inr,
         net_revenue_inr - cogs_inr - commission_cost_inr                    as gross_profit_inr
     from enriched
+    {{ limit_in_dev('order_date', 'enriched') }}
 
 )
 

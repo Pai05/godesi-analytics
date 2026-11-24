@@ -1,0 +1,19 @@
+snapshots:
+  - name: snap_products
+    description: >
+      Price and cost history of every GoDesi SKU (slowly changing dimension, type 2).
+      Each run compares the current product rows with the last snapshot: when a checked
+      column changed, the old row is closed (dbt_valid_to set) and a new row is opened.
+      Current rows have dbt_valid_to = NULL.
+    relation: ref('stg_erp__products')
+    config:
+      unique_key: sku_id
+      strategy: check
+      check_cols: [mrp_inr, cost_inr, product_name, category, is_active]
+    columns:
+      - name: sku_id
+        data_tests: [not_null]
+      - name: dbt_valid_from
+        description: When this version of the product was first seen by the snapshot.
+      - name: dbt_valid_to
+        description: When it was replaced. NULL = the current version.

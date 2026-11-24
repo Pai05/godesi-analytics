@@ -1,0 +1,44 @@
+unit_tests:
+
+  # Business rule: cancelled and returned lines earn no revenue and no COGS,
+  # but a returned marketplace order still costs us the commission.
+  - name: revenue_rules_for_cancelled_and_returned_lines
+    description: Checks net_revenue_inr, cogs_inr, commission_cost_inr and gross_profit_inr on 3 fake lines.
+    model: int_sales_lines__enriched
+    given:
+      - input: ref('int_sales_lines__unioned')
+        rows:
+          - {sales_line_id: L1, order_id: O1, channel: website, ordered_at: "2025-01-10 10:00:00", order_status: delivered, is_returned: false, city_key: bengaluru, sku_id: GD-0001, quantity: 2, unit_price_inr: 40, gross_amount_inr: 80, discount_inr: 0, net_amount_inr: 80, commission_inr: 0, refund_inr: 0}
+          - {sales_line_id: L2, order_id: O2, channel: website, ordered_at: "2025-01-10 11:00:00", order_status: cancelled, is_returned: false, city_key: bengaluru, sku_id: GD-0001, quantity: 1, unit_price_inr: 40, gross_amount_inr: 40, discount_inr: 0, net_amount_inr: 40, commission_inr: 0, refund_inr: 0}
+          - {sales_line_id: L3, order_id: O3, channel: amazon, ordered_at: "2025-01-10 12:00:00", order_status: returned, is_returned: true, city_key: bengaluru, sku_id: GD-0001, quantity: 1, unit_price_inr: 40, gross_amount_inr: 40, discount_inr: 0, net_amount_inr: 40, commission_inr: 8.8, refund_inr: 40}
+      - input: ref('stg_erp__products')
+        rows:
+          - {sku_id: GD-0001, product_name: Desi Popz Tangy Imli, category: Candy, cost_inr: 20}
+      - input: ref('city_mapping')
+        rows:
+          - {city_key: bengaluru, city: Bengaluru, state: Karnataka, region: South, is_metro: true}
+      - input: ref('channel_mapping')
+        rows:
+          - {channel: website, channel_name: GoDesi Website, channel_type: D2C}
+          - {channel: amazon, channel_name: Amazon, channel_type: Marketplace}
+    expect:
+      rows:
+        - {sales_line_id: L1, net_revenue_inr: 80, cogs_inr: 40, commission_cost_inr: 0,   gross_profit_inr: 40}
+        - {sales_line_id: L2, net_revenue_inr: 0,  cogs_inr: 0,  commission_cost_inr: 0,   gross_profit_inr: 0}
+        - {sales_line_id: L3, net_revenue_inr: 0,  cogs_inr: 0,  commission_cost_inr: 8.8, gross_profit_inr: -8.8}
+
+  # Macro clean_amount: every price format in the raw data becomes the same number.
+  - name: clean_amount_handles_rupee_formats
+    description: "'₹40.00', 'Rs. 40' and '40.00' all become 40.00 in stg_ecom__order_items."
+    model: stg_ecom__order_items
+    given:
+      - input: source('ecom', 'order_items')
+        rows:
+          - {order_item_id: A-1, order_id: A, sku_id: GD-0001, quantity: "1", unit_price_inr: "₹40.00", discount_inr: "0.00"}
+          - {order_item_id: A-2, order_id: A, sku_id: GD-0001, quantity: "1", unit_price_inr: "Rs. 40", discount_inr: "0.00"}
+          - {order_item_id: A-3, order_id: A, sku_id: GD-0001, quantity: "1", unit_price_inr: "40.00", discount_inr: "0.00"}
+    expect:
+      rows:
+        - {order_item_id: A-1, unit_price_inr: 40.00}
+        - {order_item_id: A-2, unit_price_inr: 40.00}
+        - {order_item_id: A-3, unit_price_inr: 40.00}
