@@ -1,0 +1,36 @@
+models:
+  - name: stg_erp__products
+    description: GoDesi product master, cleaned. One row per SKU (latest version).
+    columns:
+      - name: sku_id
+        description: GoDesi SKU code, e.g. GD-0001. Primary key.
+        data_tests: [unique, not_null]
+      - name: barcode
+        description: EAN-13 barcode. Real for the GoDesi products found in Open Food Facts.
+        data_tests: [unique, not_null]
+      - name: product_name
+        description: Product name, trimmed.
+        data_tests: [not_null]
+      - name: category
+        description: Product category, consistent capitalisation.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Candy", "Mithai", "Laddu", "Chikki", "Fruit Bar", "Namkeen", "Frozen"]
+      - name: mrp_inr
+        description: Maximum retail price in INR (current).
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 2000
+      - name: cost_inr
+        description: Unit cost of goods in INR.
+        data_tests: [not_null]
+      - name: launch_date
+        description: Date the SKU went on sale.
+      - name: is_active
+        description: True if the SKU is currently sold.
+      - name: updated_at
+        description: When this version of the product record was last changed in the ERP.

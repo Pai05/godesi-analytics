@@ -1,0 +1,16 @@
+sources:
+  - name: open_food_facts
+    description: >
+      Real Open Food Facts extract of products sold in India (open data, ODbL licence).
+      Static one-off load, so no freshness check.
+    database: GODESI_RAW
+    schema: OPEN_FOOD_FACTS
+    tables:
+      - name: products
+        description: >
+          One row per barcode (code). 211 text columns from the OFF export plus load
+          metadata. Brands are free text with many spellings; categories and tags are
+          comma-separated lists with 'en:' prefixes.
+        columns:
+          - name: code
+            data_tests: [not_null, unique]

@@ -1,0 +1,26 @@
+sources:
+  - name: ecom
+    description: GoDesi's own website (D2C) — synthetic Shopify-style export.
+    database: GODESI_RAW
+    schema: ECOM
+    config:
+      loaded_at_field: _loaded_at
+      freshness:
+        warn_after: {count: 1, period: day}
+    tables:
+      - name: customers
+        description: Website customers. One row per customer at sign-up.
+      - name: orders
+        description: >
+          Order headers. NOT unique on order_id: contains exact duplicate rows and, after
+          batch 2, newer rows for the same order with a later status and updated_at.
+          order_ts mixes 'YYYY-MM-DD HH:MI:SS' and 'DD/MM/YYYY HH:MI'.
+        columns:
+          - name: order_id
+            data_tests: [not_null]
+      - name: order_items
+        description: >
+          Order lines. One row per order line. unit_price_inr is text and sometimes
+          prefixed with '₹' or 'Rs. '.
+      - name: returns
+        description: Returned order lines with refund amount. One row per return.

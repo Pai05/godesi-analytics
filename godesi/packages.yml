@@ -1,0 +1,7 @@
+packages:
+  - package: dbt-labs/dbt_utils          # generic tests + helpers (date_spine, surrogate keys, ...)
+    version: [">=1.3.0", "<2.0.0"]
+  - package: metaplane/dbt_expectations  # Great-Expectations-style data tests
+    version: [">=0.10.0", "<0.11.0"]
+  - package: dbt-labs/codegen            # generates source / model YAML for you
+    version: [">=0.13.0", "<1.0.0"]

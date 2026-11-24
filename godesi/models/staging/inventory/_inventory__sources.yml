@@ -1,0 +1,12 @@
+sources:
+  - name: inventory
+    description: Warehouse management system (synthetic) — daily closing stock.
+    database: GODESI_RAW
+    schema: INVENTORY
+    config:
+      loaded_at_field: _loaded_at
+      freshness:
+        warn_after: {count: 1, period: day}
+    tables:
+      - name: stock_daily
+        description: Closing stock. One row per snapshot_date x warehouse_id x sku_id.

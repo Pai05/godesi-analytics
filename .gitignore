@@ -1,0 +1,28 @@
+# Secrets — never commit
+*.p8
+*.pem
+*.key
+rsa_key*
+.env
+profiles.yml
+
+# Large raw data (73 MB each) — keep out of Git
+off_india_raw.csv
+off_india_raw.tsv
+fetch_csv.log.txt
+data/raw/
+
+# Python
+.venv/
+__pycache__/
+
+# dbt
+target/
+dbt_packages/
+logs/
+
+# Exports
+*.pdf
+
+# dbt
+.user.yml

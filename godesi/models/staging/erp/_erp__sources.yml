@@ -1,0 +1,27 @@
+sources:
+  - name: erp
+    description: Company ERP export (synthetic) — product master, distributor network and offline sales.
+    database: GODESI_RAW
+    schema: ERP
+    config:
+      loaded_at_field: _loaded_at
+      freshness:
+        warn_after: {count: 1, period: day}
+    tables:
+      - name: products
+        description: >
+          Product master. One row per SKU per load: batch 2 re-sends changed SKUs, so the
+          same sku_id can appear more than once (keep the latest updated_at).
+        columns:
+          - name: sku_id
+            data_tests: [not_null]
+      - name: distributors
+        description: Distributors that resell GoDesi products to shops. One row per distributor.
+      - name: stores
+        description: Retail shops (kirana, modern trade, sweet shops) served by distributors. One row per store.
+      - name: promotions
+        description: Promotion calendar by channel. One row per promo code.
+      - name: invoices
+        description: Distributor-to-store invoice headers. invoice_date is DD-MM-YYYY text.
+      - name: invoice_lines
+        description: Invoice lines. One row per invoice per line_no.
