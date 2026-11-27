@@ -1,0 +1,6 @@
+# Packages for the public copy of the dashboard on Streamlit Community Cloud.
+# (Streamlit in Snowflake does not use this file; it has its own package list.)
+streamlit>=1.50
+altair>=5.4
+pandas>=2.2
+duckdb>=1.1

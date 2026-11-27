@@ -1,7 +1,11 @@
-"""GoDesi Sales Dashboard v3 — Streamlit in Snowflake, GoDesi brand style.
+"""GoDesi Sales Dashboard v3 — GoDesi brand style.
 
-Paste this whole file into the Streamlit app owned by role REPORTER in
-GODESI_ANALYTICS.APPS. It only reads the dbt marts in GODESI_ANALYTICS.MARTS.
+Runs in two places with the same code:
+  * Streamlit in Snowflake: paste this whole file into the app owned by role REPORTER in
+    GODESI_ANALYTICS.APPS. It reads the dbt marts in GODESI_ANALYTICS.MARTS live.
+  * Anywhere else (Streamlit Community Cloud, or `streamlit run` on a laptop): there is no
+    Snowflake session, so it reads dashboard/data_snapshot/*.parquet (exported by
+    scripts/export_dashboard_snapshot.py) with DuckDB and runs the same SQL on it.
 
 v3: GoDesi colours (logo orange #FF8700, black #111111, website teal #108474),
 money in crore (₹ Cr) for totals and lakh (₹ L) for per-day / per-product-month
@@ -9,15 +13,24 @@ amounts, and one finding headline per tab, like the Power BI report.
 """
 from datetime import date
 from html import escape
+from pathlib import Path
 
 import altair as alt
 import pandas as pd
 import streamlit as st
-from snowflake.snowpark.context import get_active_session
 
 st.set_page_config(page_title="GoDesi Sales Dashboard", layout="wide")
-session = get_active_session()
-DB = "GODESI_ANALYTICS.MARTS"
+
+try:                                    # inside Snowflake
+    from snowflake.snowpark.context import get_active_session
+    session = get_active_session()
+    DB = "GODESI_ANALYTICS.MARTS"
+    SOURCE = "dbt marts in Snowflake"
+except Exception:                       # public copy: no Snowflake, read the Parquet snapshot
+    session = None
+    DB = "marts"
+    SOURCE = "snapshot of the dbt marts"
+SNAPSHOT_DIR = Path(globals().get("__file__", ".")).resolve().parent / "data_snapshot"
 FIRST_DAY, LAST_DAY = date(2024, 1, 1), date(2025, 12, 31)
 
 # --------------------------------------------------------------------------
@@ -82,9 +95,29 @@ st.markdown("""
 # --------------------------------------------------------------------------
 # Helpers
 # --------------------------------------------------------------------------
+@st.cache_resource(show_spinner=False)
+def _duck():
+    """DuckDB over the Parquet snapshot, with the two Snowflake functions the SQL uses."""
+    import duckdb
+    con = duckdb.connect()
+    con.execute("create schema marts")
+    for f in sorted(SNAPSHOT_DIR.glob("*.parquet")):
+        con.execute(f"create view marts.{f.stem} as select * from read_parquet('{f.as_posix()}')")
+    con.execute("create or replace macro iff(c, a, b) as case when c then a else b end")
+    con.execute("create or replace macro to_char(d, fmt) as strftime(d, '%Y-%m')")   # only 'YYYY-MM' is used
+    return con
+
+
 @st.cache_data(ttl=3600, show_spinner=False)
 def query(sql: str) -> pd.DataFrame:
-    return session.sql(sql).to_pandas()
+    if session is not None:
+        return session.sql(sql).to_pandas()
+    df = _duck().cursor().execute(sql).df()
+    df.columns = [c.upper() for c in df.columns]        # Snowflake returns upper-case names
+    for c in df.columns:                                 # Snowflake DATE -> python date, as in SiS
+        if pd.api.types.is_datetime64_any_dtype(df[c]):
+            df[c] = df[c].dt.date
+    return df
 
 
 def lit(value) -> str:
@@ -162,6 +195,12 @@ types = st.sidebar.multiselect("Channel type", all_types, default=all_types)
 picked = st.sidebar.date_input("Order date", (date(2025, 1, 1), LAST_DAY), min_value=FIRST_DAY, max_value=LAST_DAY)
 st.sidebar.caption("Year-on-year deltas need a date range that starts in 2025.")
 st.sidebar.caption("Money: ₹ Cr = crore (1,00,00,000) · ₹ L = lakh (1,00,000).")
+if session is None:
+    st.sidebar.info(
+        "**Demo with synthetic data.** Unofficial project built for an internship application; "
+        "not affiliated with GoDesi. Sales, customer and stock figures are generated, not real. "
+        "[Source code and details](https://github.com/Pai05/godesi-analytics)"
+    )
 
 if not types:
     st.warning("Pick at least one channel type.")
@@ -178,7 +217,7 @@ st.markdown(f"""
   <span class="gd-badge">GO DESi</span>
   <div>
     <div class="gd-band-title">Sales dashboard</div>
-    <div class="gd-band-sub">{start:%d %b %Y} – {end:%d %b %Y} · {escape(', '.join(types))} · source: dbt marts in Snowflake</div>
+    <div class="gd-band-sub">{start:%d %b %Y} – {end:%d %b %Y} · {escape(', '.join(types))} · source: {SOURCE}</div>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -364,7 +403,8 @@ with tabs[0]:
 with tabs[1]:
     products["MARGIN"] = products.PROFIT / products.REVENUE.where(products.REVENUE != 0)
     products["REV_CR"] = products.REVENUE / 1e7
-    pareto = products.sort_values("REVENUE", ascending=False).reset_index(drop=True)
+    pareto = (products[products.CATEGORY != "Unknown"]          # not the "Unknown product" (bad SKU) row
+              .sort_values("REVENUE", ascending=False).reset_index(drop=True))
     pareto["RANK"] = pareto.index + 1
     pareto["CUM_SHARE"] = pareto.REVENUE.cumsum() / pareto.REVENUE.sum() if len(pareto) else 0
     n80 = int((pareto.CUM_SHARE < 0.8).sum()) + 1 if len(pareto) else 0
