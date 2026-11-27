@@ -1,0 +1,9 @@
+# Streamlit settings for the public copy of the dashboard (Streamlit Community Cloud runs the app
+# from the repository root, so it reads this file). Forces the light GoDesi theme, so visitors whose
+# browser is in dark mode see the same colours as everyone else.
+[theme]
+base = "light"
+primaryColor = "#FF8700"
+backgroundColor = "#FFF7EE"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#111111"

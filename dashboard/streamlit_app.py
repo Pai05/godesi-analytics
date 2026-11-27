@@ -84,9 +84,23 @@ st.markdown("""
   [data-testid="stVerticalBlockBorderWrapper"] { background: #FFFFFF; border-color: #EFE3D3 !important;
                                                  border-radius: 10px; }
 
-  .stTabs [data-baseweb="tab-list"] { gap: 6px; background: #111111; padding: 6px; border-radius: 999px; }
-  .stTabs [data-baseweb="tab"] { color: #D9D0C5; border-radius: 999px; padding: 6px 16px; height: auto; }
-  .stTabs [aria-selected="true"] { background: #FF8700; color: #111111; font-weight: 700; }
+  /* Text colours are set explicitly: a visitor whose browser is in dark mode would otherwise
+     get Streamlit's light-on-dark text on these cream and white backgrounds. */
+  .stApp, .stApp p, .stApp li, .stApp label { color: #111111; }
+  [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p { color: #6B6257 !important; }
+  [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3,
+  [data-testid="stSidebar"] label, [data-testid="stSidebar"] label p { color: #111111 !important; }
+  [data-testid="stSidebar"] [data-baseweb="select"] > div,
+  [data-testid="stSidebar"] [data-baseweb="input"] > div { background: #FFFFFF !important; border-color: #CDBFAE !important; }
+  [data-testid="stSidebar"] input { color: #111111 !important; -webkit-text-fill-color: #111111 !important; }
+  [data-testid="stMetricDelta"] { background: transparent !important; }
+
+  /* Tabs: black pill bar, orange selected tab (old and new Streamlit markup) */
+  .stTabs [role="tablist"] { gap: 6px; background: #111111; padding: 6px; border-radius: 999px; }
+  .stTabs [role="tab"], .stTabs [role="tab"] p { color: #F5EFE6 !important; }
+  .stTabs [role="tab"] { border-radius: 999px; padding: 6px 16px; height: auto; background: transparent; }
+  .stTabs [role="tab"][aria-selected="true"] { background: #FF8700 !important; }
+  .stTabs [role="tab"][aria-selected="true"], .stTabs [role="tab"][aria-selected="true"] p { color: #111111 !important; font-weight: 700; }
   .stTabs [data-baseweb="tab-highlight"], .stTabs [data-baseweb="tab-border"] { display: none; }
 </style>
 """, unsafe_allow_html=True)
