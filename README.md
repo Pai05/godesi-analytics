@@ -112,8 +112,15 @@ flowchart LR
 - A check script ([`checks/verify_data.sql`](checks/verify_data.sql)) compares the dashboard numbers
   with SQL on the marts, so both tools are checked against one source.
 
-![Power BI channels page](docs/powerbi_channels.png)
-![Streamlit app](docs/streamlit_overview.png)
+## Dashboard gallery
+
+| Products | Channels |
+|---|---|
+| ![Power BI products page](docs/powerbi_products.png) | ![Power BI channels page](docs/powerbi_channels.png) |
+| **Customers** | **Inventory** |
+| ![Power BI customers page](docs/powerbi_customers.png) | ![Power BI inventory page](docs/powerbi_inventory.png) |
+| **Promotions** | **Streamlit in Snowflake** |
+| ![Power BI promotions page](docs/powerbi_promotions.png) | ![Streamlit app](docs/streamlit_overview.png) |
 
 ## Repository map
 

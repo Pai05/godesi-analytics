@@ -308,7 +308,7 @@ with tabs[0]:
     with left:
         with panel("Net revenue by month and channel type"):
             bars = alt.Chart(monthly).mark_bar(cornerRadiusTopLeft=2, cornerRadiusTopRight=2).encode(
-                x=alt.X("MONTH:T", title=None, axis=alt.Axis(format="%b %y")),
+                x=alt.X("yearmonth(MONTH):T", title=None, axis=alt.Axis(format="%b %y")),
                 y=alt.Y("REV_CR:Q", title="Net revenue (₹ Cr)", stack=True),
                 color=alt.Color("CHANNEL_TYPE:N", title=None, scale=CHANNEL_TYPE_SCALE),
                 tooltip=[alt.Tooltip("MONTH:T", format="%b %Y", title="Month"), alt.Tooltip("CHANNEL_TYPE", title="Type"),
@@ -602,7 +602,7 @@ with tabs[3]:
         """)
         nvr["REV_L"] = nvr.REVENUE / 1e5
         chart(alt.Chart(nvr).mark_bar(cornerRadiusTopLeft=2, cornerRadiusTopRight=2).encode(
-            x=alt.X("MONTH:T", title=None, axis=alt.Axis(format="%b %y")),
+            x=alt.X("yearmonth(MONTH):T", title=None, axis=alt.Axis(format="%b %y")),
             y=alt.Y("REV_L:Q", title="Net revenue (₹ L)"),
             color=alt.Color("CUSTOMER_TYPE:N", title=None, scale=alt.Scale(domain=["New", "Returning"],
                                                                          range=[SAND, ORANGE])),
@@ -698,7 +698,7 @@ with tabs[5]:
             with panel("Products by stock status, monthly (share of product-days)"):
                 chart(alt.Chart(inv.groupby(["MONTH", "STOCK_STATUS"], as_index=False).size()).mark_area(
                     stroke="#FFFFFF", strokeWidth=0.8).encode(
-                    x=alt.X("MONTH:T", title=None, axis=alt.Axis(format="%b %y")),
+                    x=alt.X("yearmonth(MONTH):T", title=None, axis=alt.Axis(format="%b %y")),
                     y=alt.Y("size:Q", stack="normalize", axis=alt.Axis(format="%"), title=None),
                     color=alt.Color("STOCK_STATUS:N", scale=STATUS_SCALE, title=None,
                                     sort=["Stock-out", "Low", "Healthy", "Overstock"]),
