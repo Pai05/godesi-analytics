@@ -21,8 +21,12 @@ target/
 dbt_packages/
 logs/
 
-# Exports
+# Exports (a .pbix file contains a copy of the data)
 *.pdf
+*.pbix
 
 # dbt
 .user.yml
+
+# Local-only files (ODBC installer, raw extracts)
+data/

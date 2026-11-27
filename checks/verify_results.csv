@@ -1,0 +1,35 @@
+SECTION,CHECK_NAME,RESULT,EXPECTED
+1 Integrity,DIM_DATE days (rows / distinct),731 / 731,731 / 731
+1 Integrity,DIM_PRODUCTS products (rows / distinct),40 / 40,40 / 40
+1 Integrity,Dev and prod fact tables agree (lines / revenue),equal,equal
+1 Integrity,Duplicate sales_line_id in FCT_ORDER_ITEMS,0,0
+1 Integrity,FCT_ORDERS revenue = FCT_ORDER_ITEMS revenue,equal,equal
+1 Integrity,Lines whose SKU is not in DIM_PRODUCTS (planted bad SKU),"5 lines, SKU GD-9999","a few lines, only GD-9999 (known, test set to warn)"
+1 Integrity,Lines whose channel is not in DIM_CHANNELS,0,0
+1 Integrity,Lines whose city is not in DIM_GEOGRAPHY,0,0
+1 Integrity,"MART_INVENTORY_HEALTH duplicate (date, SKU) rows",0,0
+1 Integrity,Net revenue on cancelled lines (must be zero),0.00,0
+1 Integrity,Order date range,2024-01-01 to 2025-12-31,2024-01-01 to 2025-12-31
+1 Integrity,Order lines in FCT_ORDER_ITEMS,164596,same as next row
+1 Integrity,Order lines in staging (website + marketplace + offline),164596,same as previous row
+1 Integrity,"Order lines missing a key (line, order, date, channel)",0,0
+1 Integrity,"Profit rule broken (revenue - COGS - commission != profit), lines",0,0
+1 Integrity,Website lines whose customer is not in DIM_CUSTOMERS,0,0
+2 Channels,Biggest channel by revenue,Distributors and Stores,Power BI: Distributors
+2 Channels,Fastest-growing channel 2025 vs 2024,Zepto (131.4%),Power BI: Zepto
+2 Channels,Fastest-growing region 2025 vs 2024,South (33.5%),Power BI: South
+2 Customers,Avg retention %: month 1 / month 3,4.28 / 3.89,Power BI: 4.28 / 3.89
+2 Customers,One-time share: of all DIM_CUSTOMERS rows / of customers who ordered,58.91% / 69.61%,Power BI donut: 59.01%
+2 Customers,"Website customers (ordered, not cancelled)",9769,Power BI card: 10K
+2 Inventory,Month with the most stock-out product-days,Oct,Power BI: October
+2 Inventory,Products on 31 Dec 2025: Stock-out / Low / Overstock,1 / 0 / 3,Power BI: 1 / 0 / 3
+2 Overview,AOV (INR),727.51,Power BI card: 727.51
+2 Overview,Avg daily revenue 2025: festival season / other days,137423 / 87713,Power BI: 29.2K / 19K (1.5x)
+2 Overview,Net Revenue 2024 / 2025 (INR),26617852 / 34252034,2025 LY in Power BI = 2024 value
+2 Overview,"Net Revenue, all time (INR)",60869886,Power BI card: 61M
+2 Overview,Orders (not cancelled),83669,Power BI card: 84K
+2 Overview,Revenue YoY % 2025,28.7,Power BI: 101.3
+2 Products,Product where the running total crosses 80%,Imli Goli,Power BI: Masala Peanuts
+2 Products,Products needed for 80% of revenue / products with sales,21 / 40,Power BI: 19 (Masala Peanuts crosses 80%)
+2 Products,Top category by revenue,Candy,Power BI: Mithai
+2 Promotions,Top promotion by revenue lift,"Diwali Deals 2025 (Amazon) (15.00% off, lift 114.7%)","Power BI: 15% off, ~115% lift"

@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GoDesi dashboard: final look (Power BI rebuild guide)</title>
+<style>
+  :root{--orange:#FF8700;--ink:#111111;--teal:#108474;--cream:#FFF7EE;--border:#EFE3D3;--muted:#6B6257}
+  *{box-sizing:border-box}
+  body{margin:0;background:#E9E3DA;font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink)}
+  header.top{background:var(--ink);color:#fff;padding:22px 32px;display:flex;align-items:center;gap:18px}
+  .badge{background:var(--orange);color:var(--ink);font-weight:800;letter-spacing:.5px;padding:6px 12px;border-radius:6px;font-size:15px}
+  header.top h1{margin:0;font-size:20px;font-weight:600}
+  header.top p{margin:2px 0 0;color:#CFC6BB;font-size:13px}
+  nav.toc{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--border);padding:10px 32px;display:flex;gap:8px;flex-wrap:wrap}
+  nav.toc a{font-size:13px;text-decoration:none;color:var(--ink);padding:5px 12px;border-radius:999px;border:1px solid var(--border)}
+  nav.toc a:hover{background:var(--orange);border-color:var(--orange)}
+  main{max-width:1340px;margin:0 auto;padding:24px 30px 60px}
+  section{background:#fff;border-radius:12px;padding:22px 26px;margin-bottom:28px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  h2{margin:0 0 4px;font-size:20px}
+  h2 .n{display:inline-block;background:var(--orange);color:var(--ink);border-radius:6px;padding:0 8px;margin-right:8px}
+  h3{font-size:15px;margin:22px 0 8px}
+  p.lead{margin:0 0 14px;color:var(--muted);font-size:14px}
+  .canvas{width:100%;max-width:1280px;aspect-ratio:16/9;border-radius:6px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.18);display:block}
+  table.spec{border-collapse:collapse;width:100%;font-size:13px;margin-top:6px;table-layout:fixed}
+  table.spec td{overflow-wrap:anywhere}
+  table.spec th{background:var(--ink);color:#fff;text-align:left;padding:7px 9px;font-weight:600}
+  table.spec td{border-bottom:1px solid var(--border);padding:7px 9px;vertical-align:top}
+  table.spec tr:nth-child(even) td{background:#FFFBF6}
+  td.pos{font-family:Consolas,monospace}
+  .sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px;border:1px solid rgba(0,0,0,.15)}
+  .pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+  .pal div{border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:12.5px}
+  .pal b{display:block;height:46px}
+  .pal span{display:block;padding:6px 9px}
+  .pal code{font-weight:700}
+  ol.steps{font-size:14px;line-height:1.65;padding-left:22px}
+  ol.steps code,td code{background:#FFF1E0;padding:0 4px;border-radius:3px}
+  .note{background:#FFF1E0;border-left:4px solid var(--orange);padding:10px 14px;font-size:13.5px;border-radius:4px}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="badge">GO DESi</span>
+  <div><h1>Sales dashboard: final look, 6 pages</h1>
+  <p>Power BI rebuild guide · canvas 1920 × 1080 · GoDesi colours (logo orange, black, website teal)</p></div>
+</header>
+<nav class="toc" id="toc"><a href="#style">0 · Style &amp; theme</a></nav>
+<main id="main">
+
+<section id="style">
+  <h2><span class="n">0</span>Style system: do this once before touching any page</h2>
+  <p class="lead">Colours come from GoDesi's own brand: the logo is orange <b>#FF8700</b> with black lettering, and godesi.in uses teal <b>#108474</b> as its second colour. Everything else is a neutral built around those three.</p>
+  <div class="pal" id="pal"></div>
+
+  <h3>Channel colours: same colour = same channel on every page</h3>
+  <table class="spec" id="chanTable"></table>
+
+  <h3>Steps (Power BI Desktop)</h3>
+  <ol class="steps">
+    <li><b>Load the theme:</b> View → Themes → ▾ (bottom arrow) → <b>Browse for themes</b> → pick <code>D:\go_desi\dashboard\godesi_theme.json</code> → Open. Cream page background, white rounded cards and black table headers turn on everywhere.</li>
+    <li><b>Canvas size:</b> click an empty spot on the page → Format pane → Canvas settings → Type <b>Custom</b>, width 1920, height 1080. The X / Y / W / H numbers below assume this.</li>
+    <li><b>Exact position of a visual:</b> select it → Format pane → <b>General</b> → Properties → <b>Size</b> (Height, Width) and <b>Position</b> (Horizontal = X, Vertical = Y).</li>
+    <li><b>Header band (build once on page 1, then copy to every page):</b>
+      <ol>
+        <li>Insert → Shapes → <b>Rectangle</b>. Position 0, 0, size 1920 × 84. Fill <code>#111111</code>, border off.</li>
+        <li>Insert → Shapes → <b>Rounded rectangle</b>. Position 24, 18, size 144 × 48. Fill <code>#FF8700</code>, border off, Text on: <b>GO DESi</b>, Segoe UI Bold 18, colour <code>#111111</code>, centred.</li>
+        <li>Insert → Buttons → Navigator → <b>Page navigator</b>. Position 198, 18, size 1080 × 48. Format → Style → State <b>Default</b>: fill off, text <code>#D9D0C5</code>, 16. State <b>Selected</b>: fill <code>#FF8700</code>, text <code>#111111</code>, bold. State <b>On hover</b>: fill <code>#3D3935</code>. Shape rounded, radius 24.</li>
+        <li>Select the three (Ctrl+click) → Ctrl+C → go to each other page → Ctrl+V. They land in the same place.</li>
+      </ol></li>
+    <li><b>Titles:</b> keep your rectangle-shape titles. Move them to 36, 102, size 1230 × 51, Segoe UI Bold 30, <code>#111111</code>. Subtitle shape at 36, 150, 1230 × 33, Segoe UI 16, <code>#6B6257</code>.</li>
+    <li><b>Visual titles:</b> short, sentence case (e.g. "Net revenue by month"), no field names like "Sum of NET_REVENUE_INR". Rename in the field well: double-click the field → type a new name.</li>
+    <li><b>Series colours:</b> the theme makes the first series orange. For charts with a channel legend, set each series by hand once: Format → Columns (or Lines) → Colors → pick the channel, enter the hex from the table above.</li>
+    <li><b>Tidy:</b> turn off the visual header icons you don't need (Format → General → Header icons). Turn off gridlines on bar charts and keep them on column/line charts only.</li>
+    <li><b>Before saving:</b> clear both slicers on every page (eraser icon), then File → Save.</li>
+  </ol>
+  <b>All positions, sizes and font sizes are for a 1920 × 1080 canvas.</b> Default font sizes come from the theme (visual titles 18, labels 14).  show <b>layout, colour and formatting</b>. Bar lengths, line shapes and most numbers are illustrative: your report fills in the real values. The page titles are your final titles, already checked against Snowflake.</p>
+</section>
+
+</main>
+
+<script>
+const C={orange:'#FF8700',orangeD:'#C25E00',peach:'#FFB066',peachL:'#FFD3A3',ink:'#111111',teal:'#108474',tealL:'#6FB7AC',
+  char:'#3D3935',sand:'#CDBFAE',cream:'#FFF7EE',border:'#EFE3D3',muted:'#6B6257',grid:'#F1E8DC',red:'#C0392B',stone:'#8A7F72',navOff:'#D9D0C5'};
+const NS='http://www.w3.org/2000/svg';
+const PAGES=['Overview','Products','Channels','Customers','Promotions','Inventory'];
+const MONTHS=['J','F','M','A','M','J','J','A','S','O','N','D'];
+
+/* ---------- palette + channel table ---------- */
+const pal=[
+ [C.orange,'#FF8700','Brand orange: hero series, selected nav tab, accent bars'],
+ [C.ink,'#111111','Ink: header band, titles, table headers'],
+ [C.teal,'#108474','Website teal: second series, "good" (growth, healthy)'],
+ [C.cream,'#FFF7EE','Cream: page background'],
+ [C.border,'#EFE3D3','Card border (1 px, radius 15)'],
+ [C.muted,'#6B6257','Muted text: subtitles, axis labels'],
+ [C.char,'#3D3935','Charcoal: Offline channel, neutral bars'],
+ [C.sand,'#CDBFAE','Sand: last year, "other", D2C'],
+ [C.red,'#C0392B','Red: stock-out, negative YoY only'],
+];
+document.getElementById('pal').innerHTML=pal.map(p=>`<div><b style="background:${p[0]}"></b><span><code>${p[1]}</code><br>${p[2]}</span></div>`).join('');
+const chans=[
+ ['Offline','Distributors and Stores',C.char,'#3D3935'],
+ ['Marketplace','Amazon',C.teal,'#108474'],['Marketplace','Flipkart',C.tealL,'#6FB7AC'],
+ ['Quick Commerce','Blinkit',C.orange,'#FF8700'],['Quick Commerce','Zepto',C.peach,'#FFB066'],['Quick Commerce','Swiggy Instamart',C.peachL,'#FFD3A3'],
+ ['D2C','GoDesi Website',C.sand,'#CDBFAE'],
+];
+document.getElementById('chanTable').innerHTML='<tr><th>CHANNEL_TYPE</th><th>Type colour</th><th>CHANNEL_NAME</th><th>Name colour</th></tr>'+
+ chans.map(c=>{const tc={Offline:'#3D3935',Marketplace:'#108474','Quick Commerce':'#FF8700',D2C:'#CDBFAE'}[c[0]];
+  return `<tr><td>${c[0]}</td><td><span class="sw" style="background:${tc}"></span>${tc}</td><td>${c[1]}</td><td><span class="sw" style="background:${c[2]}"></span>${c[3]}</td></tr>`}).join('');
+
+/* ---------- svg helpers ---------- */
+function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function tx(p,x,y,s,o={}){const e=el('text',{x,y,'font-size':o.size||11,fill:o.fill||C.ink,'font-weight':o.w||400,'text-anchor':o.anchor||'start','font-family':'Segoe UI, system-ui, sans-serif'},p);e.textContent=s;return e}
+function rect(p,x,y,w,h,f,o={}){return el('rect',{x,y,width:w,height:h,fill:f,rx:o.rx||0,stroke:o.stroke||'none','stroke-width':o.sw||1},p)}
+function card(g,x,y,w,h,title){rect(g,x,y,w,h,'#fff',{rx:10,stroke:C.border});if(title)tx(g,x+14,y+24,title,{size:13,w:600});return {x:x+14,y:y+(title?40:12),w:w-28,h:h-(title?52:24)}}
+function legend(g,x,y,items){let cx=x;items.forEach(([l,c])=>{rect(g,cx,y-8,10,10,c,{rx:2});tx(g,cx+14,y+1,l,{size:10,fill:C.muted});cx+=l.length*5.6+30})}
+function rng(seed){let s=seed;return()=>{s=(s*9301+49297)%233280;return s/233280}}
+
+function frame(svg,i,title,sub,slicers){
+  rect(svg,0,0,1280,720,C.cream);
+  rect(svg,0,0,1280,56,C.ink);
+  rect(svg,16,12,96,32,C.orange,{rx:6});tx(svg,64,33,'GO DESi',{size:12,w:800,anchor:'middle'});
+  const tw=720/6;PAGES.forEach((p,k)=>{const x=132+k*tw;if(k===i)rect(svg,x+4,12,tw-8,32,C.orange,{rx:16});
+    tx(svg,x+tw/2,32,p,{size:11.5,w:k===i?700:400,fill:k===i?C.ink:C.navOff,anchor:'middle'})});
+  tx(svg,24,94,title,{size:title.length>78?17:20,w:700});
+  tx(svg,24,117,sub,{size:11,fill:C.muted});
+  if(slicers){
+    rect(svg,880,66,180,54,'#fff',{rx:8,stroke:C.border});tx(svg,892,82,'Year',{size:9,fill:C.muted});
+    rect(svg,892,90,74,22,'#fff',{rx:4,stroke:C.border});tx(svg,929,105,'2024',{size:10.5,anchor:'middle'});
+    rect(svg,972,90,74,22,'#fff',{rx:4,stroke:C.border});tx(svg,1009,105,'2025',{size:10.5,anchor:'middle'});
+    rect(svg,1076,66,180,54,'#fff',{rx:8,stroke:C.border});tx(svg,1088,82,'Channel type',{size:9,fill:C.muted});
+    rect(svg,1088,90,156,22,'#fff',{rx:4,stroke:C.border});tx(svg,1096,105,'All',{size:10.5});tx(svg,1234,105,'▾',{size:10,fill:C.muted,anchor:'end'});
+  }
+}
+
+/* ---------- chart renderers ---------- */
+function kpi(g,x,y,w,h,label,val,note,accent){
+  rect(g,x,y,w,h,'#fff',{rx:10,stroke:C.border});
+  if(accent)rect(g,x,y+14,4,h-28,C.orange,{rx:2});
+  tx(g,x+18,y+28,label,{size:11,fill:C.muted});
+  tx(g,x+18,y+64,val,{size:28,w:700});
+  if(note)tx(g,x+18,y+84,note.t,{size:10.5,fill:note.c||C.muted,w:note.c?600:400});
+}
+function axisY(g,b,ticks,fmt){ticks.forEach((t,k)=>{const yy=b.y+b.h-(k/(ticks.length-1))*b.h;
+  el('line',{x1:b.x,x2:b.x+b.w,y1:yy,y2:yy,stroke:C.grid,'stroke-dasharray':k?'3 3':'0'},g);tx(g,b.x-6,yy+3,fmt(t),{size:9,fill:C.muted,anchor:'end'})})}
+function stackCol(g,b){
+  const cols=[C.char,C.teal,C.orange,C.sand],names=['Offline','Marketplace','Quick Commerce','D2C'];
+  legend(g,b.x+b.w-330,b.y-22,names.map((n,i)=>[n,cols[i]]));
+  const ib={x:b.x+34,y:b.y+6,w:b.w-40,h:b.h-26};axisY(g,ib,[0,1,2,3,4],v=>'₹'+v*10+'L');
+  const bw=ib.w/24;
+  for(let i=0;i<24;i++){let yy=ib.y+ib.h;const m=i%12,fest=(m===9||m===10)?1.55:(m===2||m===7)?1.2:1,gr=1+i*.018;
+    [46,22,10+i*.75,9].forEach((v,k)=>{const h=v*fest*gr*1.05*ib.h/240;rect(g,ib.x+i*bw+3,yy-h,bw-6,h,cols[k]);yy-=h});
+    if(m===0)tx(g,ib.x+i*bw+3,ib.y+ib.h+14,(i?'Jan 2025':'Jan 2024'),{size:9,fill:C.muted});}
+}
+function lines(g,b){
+  legend(g,b.x+b.w-170,b.y-22,[['2025',C.orange],['2024',C.sand]]);
+  const ib={x:b.x+34,y:b.y+6,w:b.w-44,h:b.h-26};axisY(g,ib,[0,1,2,3,4],v=>'₹'+v*12+'L');
+  const base=[22,21,25,22,21,20,21,25,23,36,35,27];
+  const pts=(f)=>base.map((v,i)=>`${ib.x+i*ib.w/11},${ib.y+ib.h-v*f*ib.h/48}`).join(' ');
+  el('polyline',{points:pts(1),fill:'none',stroke:C.sand,'stroke-width':2.5,'stroke-dasharray':'6 4'},g);
+  el('polyline',{points:pts(1.29),fill:'none',stroke:C.orange,'stroke-width':3},g);
+  base.forEach((v,i)=>{el('circle',{cx:ib.x+i*ib.w/11,cy:ib.y+ib.h-v*1.29*ib.h/48,r:3,fill:C.orange},g);tx(g,ib.x+i*ib.w/11,ib.y+ib.h+14,MONTHS[i],{size:9,fill:C.muted,anchor:'middle'})});
+}
+function hbar(g,b,items,o={}){
+  const lw=o.lw||130,max=o.max||Math.max(...items.map(i=>i[1])),rh=b.h/items.length;
+  items.forEach(([l,v,c],k)=>{const yy=b.y+k*rh,bw=(b.w-lw-60)*v/max;
+    tx(g,b.x+lw-8,yy+rh/2+4,l,{size:o.fs||11,anchor:'end'});
+    rect(g,b.x+lw,yy+rh*.18,bw,rh*.64,c||C.orange,{rx:3});
+    tx(g,b.x+lw+bw+6,yy+rh/2+4,o.fmt?o.fmt(v):v,{size:10.5,w:600,fill:C.ink})});
+}
+function pareto(g,b){
+  const ib={x:b.x+30,y:b.y+6,w:b.w-66,h:b.h-20},n=40,r=rng(7);
+  let vals=[];for(let i=0;i<n;i++)vals.push(100*Math.pow(.93,i)*(0.92+r()*.16));vals.sort((a,b)=>b-a);
+  const tot=vals.reduce((a,b)=>a+b,0),bw=ib.w/n;let cum=0,pts=[];
+  axisY(g,ib,[0,1,2,3,4],v=>'₹'+v*4+'L');
+  vals.forEach((v,i)=>{const h=v/100*ib.h*.95;rect(g,ib.x+i*bw+1,ib.y+ib.h-h,bw-2,h,i<21?C.orange:C.sand);cum+=v;pts.push(`${ib.x+i*bw+bw/2},${ib.y+ib.h-cum/tot*ib.h}`)});
+  const y80=ib.y+ib.h-.8*ib.h;el('line',{x1:ib.x,x2:ib.x+ib.w,y1:y80,y2:y80,stroke:C.teal,'stroke-dasharray':'5 4','stroke-width':1.5},g);
+  tx(g,ib.x+ib.w+4,y80+4,'80%',{size:10,fill:C.teal,w:700});
+  el('polyline',{points:pts.join(' '),fill:'none',stroke:C.ink,'stroke-width':2},g);
+  tx(g,ib.x+21*bw,ib.y+ib.h+13,'← 21 products',{size:9.5,fill:C.muted,anchor:'end'});
+  legend(g,b.x+b.w-250,b.y-22,[['Top 21 (80%)',C.orange],['Rest',C.sand],['Cumulative %',C.ink]]);
+}
+function scatter(g,b){
+  const ib={x:b.x+40,y:b.y+6,w:b.w-56,h:b.h-26};
+  axisY(g,ib,[40,45,50,55],v=>v+'%');
+  const cats=[['Candy',.92,.62,26],['Mithai',.62,.38,15],['Chikki',.38,.55,16],['Laddu',.32,.35,11],['Fruit Bar',.27,.7,12],['Namkeen',.2,.75,11],['Frozen',.12,.3,9]];
+  cats.forEach(([n,x,y,s])=>{const cx=ib.x+x*ib.w,cy=ib.y+ib.h-y*ib.h;el('circle',{cx,cy,r:s,fill:n==='Candy'?C.orange:C.peachL,stroke:n==='Candy'?C.orangeD:C.peach},g);
+    tx(g,cx,cy-s-5,n,{size:10.5,w:n==='Candy'?700:400,anchor:'middle'})});
+  tx(g,ib.x+ib.w,ib.y+ib.h+16,'Net revenue →',{size:9.5,fill:C.muted,anchor:'end'});tx(g,ib.x-36,ib.y-2,'Margin',{size:9.5,fill:C.muted});
+}
+function matrixTable(g,b,head,rows,o={}){
+  const cw=o.cw||head.map(()=>b.w/head.length),rh=o.rh||22;
+  rect(g,b.x,b.y,b.w,rh,C.ink,{rx:3});let cx=b.x;
+  head.forEach((h,i)=>{tx(g,i?cx+cw[i]-8:cx+8,b.y+15,h,{size:10,w:600,fill:'#fff',anchor:i?'end':'start'});cx+=cw[i]});
+  rows.forEach((r,k)=>{const yy=b.y+rh*(k+1);if(r.total)rect(g,b.x,yy,b.w,rh,'#FFF1E0');else if(k%2)rect(g,b.x,yy,b.w,rh,'#FFFBF6');
+    let cx=b.x;r.c.forEach((v,i)=>{const cell=r.cell&&r.cell[i];
+      if(cell&&cell.bar){rect(g,cx+6,yy+4,(cw[i]-14)*cell.bar,rh-8,C.peachL,{rx:2})}
+      if(cell&&cell.bg){rect(g,cx+2,yy+2,cw[i]-4,rh-4,cell.bg,{rx:2})}
+      tx(g,i?cx+cw[i]-8:cx+8+(r.indent||0),yy+15,v,{size:10.5,w:r.total||r.bold?700:(cell&&cell.w)||400,fill:(cell&&cell.fill)||C.ink,anchor:i?'end':'start'});cx+=cw[i]});
+    el('line',{x1:b.x,x2:b.x+b.w,y1:yy+rh,y2:yy+rh,stroke:C.border},g)});
+}
+function area100(g,b,series,n,fn,o={}){
+  const ib={x:b.x+34,y:b.y+6,w:b.w-44,h:b.h-26};axisY(g,ib,[0,25,50,75,100],v=>v+'%');
+  const data=[];for(let i=0;i<n;i++){const row=series.map((s,k)=>fn(i,k));const t=row.reduce((a,b)=>a+b,0);data.push(row.map(v=>v/t))}
+  let lower=new Array(n).fill(0);
+  series.forEach(([nm,c],k)=>{const up=lower.map((l,i)=>l+data[i][k]);
+    const top=up.map((u,i)=>`${ib.x+i*ib.w/(n-1)},${ib.y+ib.h-u*ib.h}`),bot=lower.map((l,i)=>`${ib.x+i*ib.w/(n-1)},${ib.y+ib.h-l*ib.h}`).reverse();
+    el('polygon',{points:top.concat(bot).join(' '),fill:c,stroke:'#fff','stroke-width':.8},g);lower=up});
+  (o.xl||[[0,'Jan 2024'],[12,'Jan 2025'],[n-1,'Dec 2025']]).forEach(([i,l])=>tx(g,ib.x+i*ib.w/(n-1),ib.y+ib.h+14,l,{size:9,fill:C.muted,anchor:i===n-1?'end':'start'}));
+}
+function heat(g,b){
+  const rows=24,cols=13,lw=62,ch=(b.h-20)/rows,cw=(b.w-lw)/cols,r=rng(3);
+  for(let j=0;j<cols;j++)tx(g,b.x+lw+j*cw+cw/2,b.y+10,'M'+j,{size:9,fill:C.muted,anchor:'middle',w:600});
+  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  for(let i=0;i<rows;i++){const yy=b.y+18+i*ch;tx(g,b.x+lw-6,yy+ch/2+3,mo[i%12]+' '+(i<12?'24':'25'),{size:8.5,fill:C.muted,anchor:'end'});
+    for(let j=0;j<cols;j++){if(i+j>23)continue;const v=j===0?100:Math.max(1.5,(7.5-j*.32)*(0.75+r()*.5));
+      const t=j===0?1:Math.min(1,v/9);const col=j===0?C.orangeD:mix('#FFF7EE',C.orange,t);
+      rect(g,b.x+lw+j*cw+1,yy+1,cw-2,ch-2,col,{rx:2});
+      if(cw>40)tx(g,b.x+lw+j*cw+cw/2,yy+ch/2+3,j===0?'100%':v.toFixed(0)+'%',{size:8,anchor:'middle',fill:j===0?'#fff':C.ink})}}
+}
+function mix(a,b,t){const p=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));const A=p(a),B=p(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
+function retention(g,b){
+  const ib={x:b.x+34,y:b.y+6,w:b.w-44,h:b.h-26};axisY(g,ib,[0,25,50,75,100],v=>v+'%');
+  const v=[100,6.5,5.8,5.2,4.9,4.6,4.4,4.2,4.0,3.9,3.8,3.7,3.6];
+  const pts=v.map((y,i)=>`${ib.x+i*ib.w/12},${ib.y+ib.h-y/100*ib.h}`);
+  el('polygon',{points:pts.concat([`${ib.x+ib.w},${ib.y+ib.h}`,`${ib.x},${ib.y+ib.h}`]).join(' '),fill:C.orange,'fill-opacity':.12},g);
+  el('polyline',{points:pts.join(' '),fill:'none',stroke:C.orange,'stroke-width':2.5},g);
+  v.forEach((y,i)=>{el('circle',{cx:ib.x+i*ib.w/12,cy:ib.y+ib.h-y/100*ib.h,r:2.5,fill:C.orange},g);if(i%2===0)tx(g,ib.x+i*ib.w/12,ib.y+ib.h+13,'M'+i,{size:9,fill:C.muted,anchor:'middle'})});
+  tx(g,ib.x+ib.w*.35,ib.y+ib.h-14,'≈ 4% reorder each month',{size:10,fill:C.orangeD,w:600});
+}
+function donut(g,cx,cy,R,r,parts,center){
+  const tot=parts.reduce((a,p)=>a+p[1],0);let a0=-Math.PI/2;
+  parts.forEach(([n,v,c])=>{const a1=a0+v/tot*2*Math.PI,lg=a1-a0>Math.PI?1:0,P=(a,rr)=>[cx+rr*Math.cos(a),cy+rr*Math.sin(a)];
+    const [x0,y0]=P(a0,R),[x1,y1]=P(a1,R),[x2,y2]=P(a1,r),[x3,y3]=P(a0,r);
+    el('path',{d:`M${x0},${y0}A${R},${R} 0 ${lg} 1 ${x1},${y1}L${x2},${y2}A${r},${r} 0 ${lg} 0 ${x3},${y3}Z`,fill:c,stroke:'#fff','stroke-width':2},g);a0=a1});
+  tx(g,cx,cy+2,center[0],{size:20,w:700,anchor:'middle'});tx(g,cx,cy+18,center[1],{size:9.5,fill:C.muted,anchor:'middle'});
+}
+
+/* ---------- page specs ---------- */
+const fmtL=v=>'₹'+v.toFixed(1)+'L';
+const specs=[
+{ title:'Revenue grew 29% in 2025 to ₹3.4 Cr; festival-season days sell about 1.6× a normal day',
+  sub:'Net revenue after discounts and returns · cancelled orders excluded · Jan 2024 – Dec 2025', slicers:true,
+  draw(s){
+    const k=[['Net revenue','₹6.1 Cr',{t:'All years · ₹3.4 Cr in 2025'},1],['Revenue YoY','+28.7%',{t:'▲ vs 2024',c:C.teal}],['Orders','84K',{t:'Cancelled excluded'}],['Average order value','₹728',{t:'Net revenue ÷ orders'}],['Gross margin','46%',{t:'Gross profit ÷ net revenue'}]];
+    k.forEach((c,i)=>kpi(s,24+i*248,132,i<4?232:240,96,c[0],c[1],c[2],c[3]));
+    stackCol(s,card(s,24,244,792,272,'Net revenue by month and channel type'));
+    lines(s,card(s,832,244,424,272,'2025 vs 2024 by month'));
+    const b=card(s,24,532,1232,172,'Average daily revenue: festival season vs normal days');
+    hbar(s,{x:b.x,y:b.y+6,w:b.w,h:b.h-12},[['Festival season',1.6,C.orange],['Normal days',1.0,C.sand]],{lw:130,fmt:v=>v===1?'₹0.9L / day':'₹1.5L / day  (1.6×)'});
+  },
+  rows:[
+   ['Header band + logo badge + page navigator','0, 0 · 1920 × 84','See section 0, step 4. Copy to all pages.'],
+   ['Title shape','36, 102 · 1230 × 51','Segoe UI Bold 30, #111111. Text = final title.'],
+   ['Subtitle shape','36, 150 · 1230 × 33','Segoe UI 16, #6B6257.'],
+   ['Slicer: YEAR (Tile)','1320, 99 · 270 × 81','Slicer settings → Style <b>Tile</b>. Values → Selected background <code>#FF8700</code>, selected text <code>#111111</code>. Header text "Year", size 13.'],
+   ['Slicer: CHANNEL_TYPE (Dropdown)','1614, 99 · 270 × 81','Header text "Channel type". View → Sync slicers: Overview, Products, Channels.'],
+   ['5 × Card (new card visual)','y 198 · x 36 / 408 / 780 / 1152 / 1524 · 348 × 144 (last 360)','Callout value Segoe UI Bold 42, #111111. Label 16, #6B6257. Net revenue card only: Accent bar on, <code>#FF8700</code>, width 6. YoY card: Callout value colour → fx → rules: ≥ 0 → <code>#108474</code>, &lt; 0 → <code>#C0392B</code>. Display units: Crores not available → use <b>Auto</b> or a format string <code>₹#,0.0,,"L"</code>.'],
+   ['Stacked column chart','36, 366 · 1188 × 408','Columns → colours by channel type (table in section 0). Gap 25%. Legend top right. Y axis title off, X axis title off.'],
+   ['Line chart (2025 vs 2024)','1248, 366 · 636 × 408','Net Revenue <code>#FF8700</code> width 4, markers on. Net Revenue LY <code>#CDBFAE</code>, line style dashed, width 3. Rename series "2025" and "2024".'],
+   ['Clustered bar (festival lift)','36, 798 · 1848 × 258','Bars: True → <code>#FF8700</code>, False → <code>#CDBFAE</code> (Bars → Colors → Show all). Data labels on, Segoe UI Semibold 16. Rename axis values: add a column <code>Season = IF(DIM_DATE[IS_FESTIVAL_SEASON], "Festival season", "Normal days")</code> and use it instead of TRUE/FALSE. Gridlines off.'],
+  ]},
+{ title:'21 of 40 products drive 80% of revenue; Candy is the top-selling category',
+  sub:'Net revenue by product and category · 2024 – 2025', slicers:true,
+  draw(s){
+    const top=[['Desi Popz Tangy Imli',21.4],['Imli Goli',19.8],['Desi Popz Assorted',17.2],['Kaju Katli',15.9],['Aam Papad',14.1],['Peanut Chikki',13.3],['Desi Popz Real Aam',12.6],['Mithai Gift Box',11.8],['Aam Goli',10.9],['Soan Papdi',10.2]];
+    const b1=card(s,24,132,600,280,'Top 10 products by net revenue');hbar(s,b1,top.map((t,i)=>[t[0],t[1],i===0?C.orange:C.peach]),{lw:150,fs:10.5,fmt:fmtL});
+    scatter(s,card(s,640,132,616,280,'Category revenue vs margin (bubble = units sold)'));
+    pareto(s,card(s,24,428,600,276,'All 40 products, highest revenue first'));
+    const b4=card(s,640,428,616,276,'Category scorecard');
+    const cat=[['Candy','₹2.1 Cr','48%','6.1L',1],['Mithai','₹1.3 Cr','46%','0.6L',.62],['Chikki','₹0.8 Cr','47%','1.2L',.38],['Laddu','₹0.6 Cr','45%','0.3L',.29],['Fruit Bar','₹0.6 Cr','52%','0.8L',.27],['Namkeen','₹0.4 Cr','53%','0.5L',.19],['Frozen','₹0.3 Cr','55%','0.2L',.14]];
+    matrixTable(s,b4,['Category','Net revenue','Gross margin','Units sold'],cat.map(c=>({c:['⊞  '+c[0],c[1],c[2],c[3]],cell:[null,{bar:c[4]},null,null]})).concat([{c:['Total','₹6.1 Cr','46%','9.7L'],total:1}]),{cw:[200,150,124,114],rh:25});
+  },
+  rows:[
+   ['Header, title, subtitle, slicers','same as Overview','Slicers synced from page 1.'],
+   ['Clustered bar: Top 10','36, 198 · 900 × 420','Bars <code>#FFB066</code>; then Bars → Colors → fx → Rules is fiddly, so simply: Show all → set the #1 product to <code>#FF8700</code>. Data labels on, display units Lakhs-style format. X axis off, gridlines off.'],
+   ['Scatter','960, 198 · 924 × 420','Markers → Colors: Candy <code>#FF8700</code> (border <code>#C25E00</code>), all others <code>#FFD3A3</code> (border <code>#FFB066</code>). Category labels on. Y axis format %, start 40%.'],
+   ['Line and clustered column (Pareto)','36, 642 · 900 × 414','Columns <code>#FF8700</code>. Line Cumulative Revenue % <code>#111111</code>, width 3, secondary axis 0–1. Analytics pane → Constant line on Y (secondary) = 0.8, <code>#108474</code>, dashed, label "80%". X axis labels off.'],
+   ['Matrix: category scorecard','960, 642 · 924 × 414','Theme gives black headers. Cell elements → Net Revenue → <b>Data bars</b>, positive bar <code>#FFD3A3</code>. +/- icons on, row subtotals on, totals row fill <code>#FFF1E0</code> (Row subtotals → background). Values font 15.'],
+  ]},
+{ title:'Distributors still lead, but quick commerce (Zepto, Blinkit) is growing fastest',
+  sub:'Revenue, efficiency and growth by channel · YoY compares 2025 with 2024', slicers:true,
+  draw(s){
+    const b=card(s,24,132,1232,260,'Channel scorecard');
+    const rws=[['Distributors and Stores','₹2.6 Cr',.42,'42%','31K','₹839','8%','1.2%','44%','+14%'],['Amazon','₹1.0 Cr',.17,'17%','15K','₹667','15%','3.8%','45%','+22%'],['Blinkit','₹0.8 Cr',.13,'13%','12K','₹667','10%','1.5%','48%','+71%'],
+      ['Zepto','₹0.6 Cr',.10,'10%','9K','₹667','10%','1.4%','48%','+84%'],['Flipkart','₹0.5 Cr',.08,'8%','8K','₹625','15%','4.1%','45%','+12%'],['GoDesi Website','₹0.4 Cr',.06,'6%','6K','₹667','14%','2.2%','52%','+9%'],['Swiggy Instamart','₹0.2 Cr',.04,'4%','3K','₹667','10%','1.6%','48%','+58%']];
+    const yoy=v=>{const n=parseFloat(v);return n<0?{bg:mix('#FFFFFF',C.red,Math.min(1,-n/40)),w:600}:{bg:mix('#FFFFFF',C.teal,Math.min(1,n/90)),fill:n>50?'#fff':C.ink,w:600}};
+    matrixTable(s,b,['Channel','Net revenue','Share','Orders','AOV','Discount','Returns','Margin','YoY'],
+      rws.map(r=>({c:[r[0],r[1],r[3],r[4],r[5],r[6],r[7],r[8],r[9]],cell:[null,{bar:r[2]/.42},null,null,null,null,null,null,yoy(r[9])]})).concat([{c:['Total','₹6.1 Cr','100%','84K','₹728','11%','2.1%','46%','+29%'],total:1}]),{cw:[230,200,100,100,110,110,110,110,134],rh:23});
+    const series=[['Distributors and Stores',C.char],['Amazon',C.teal],['Flipkart',C.tealL],['Blinkit',C.orange],['Zepto',C.peach],['Swiggy Instamart',C.peachL],['GoDesi Website',C.sand]];
+    const b2=card(s,24,408,792,296,'Share of net revenue by channel');
+    area100(s,b2,series,24,(i,k)=>[48-i*.45,17,9,8+i*.33,5+i*.3,3+i*.1,7][k]);
+    legend(s,b2.x+150,b2.y-22,series.map(x=>[x[0].replace('Distributors and Stores','Distributors').replace('Swiggy Instamart','Instamart').replace('GoDesi Website','Website'),x[1]]));
+    const b3=card(s,832,408,424,296,'Revenue growth by region, 2025 vs 2024');
+    hbar(s,{x:b3.x,y:b3.y+10,w:b3.w,h:b3.h-20},[['South',36,C.teal],['West',31,C.teal],['North',26,C.teal],['East',19,C.teal]],{lw:70,max:40,fmt:v=>'+'+v+'%'});
+  },
+  rows:[
+   ['Header, title, subtitle, slicers','same as Overview','Slicers synced.'],
+   ['Matrix: channel scorecard','36, 198 · 1848 × 390','Sort by Net Revenue descending. Net Revenue → Data bars <code>#FFD3A3</code>. Revenue YoY % → Background colour → Gradient: min <code>#C0392B</code>, center 0 → <code>#FFFFFF</code>, max <code>#108474</code>; font colour white when YoY &gt; 50% (Font colour → rules). Rename columns: Share, Discount, Returns, Margin, YoY. Values font 15. Grid → row padding 6.'],
+   ['100% stacked area','36, 612 · 1188 × 444','Set each channel colour from the channel table in section 0: quick commerce = oranges, marketplaces = teals, distributors = charcoal, website = sand. Line width 1, white. Legend top.'],
+   ['Clustered bar: region YoY','1248, 612 · 636 × 444','Bars <code>#108474</code> (growth = good). Data labels on, format <code>+0%</code>. Sort descending. Gridlines and X axis off.'],
+  ]},
+{ title:'7 in 10 website buyers never order again; repeat buying is the biggest opportunity',
+  sub:'About 4% of customers reorder in any given month after their first purchase · website (D2C) customers only', slicers:false,
+  draw(s){
+    heat(s,card(s,24,132,800,572,'Monthly retention by first-order month (cohort)'));
+    kpi(s,840,132,416,110,'Website customers','—',{t:'Distinct customers with a non-cancelled order'},1);
+    tx(s,858,196,'your value',{size:28,w:700,fill:C.sand});
+    retention(s,card(s,840,258,416,220,'Retention curve: average of all cohorts'));
+    const b=card(s,840,494,416,210,'Customers by segment');
+    donut(s,b.x+90,b.y+80,72,46,[['One-time',70,C.sand],['Repeat',22,C.peach],['Loyal',8,C.orange]],['70%','one-time']);
+    [['One-time','1 order',C.sand],['Repeat','2–3 orders',C.peach],['Loyal','4+ orders',C.orange]].forEach(([n,d,c],i)=>{rect(s,b.x+200,b.y+46+i*32,12,12,c,{rx:2});tx(s,b.x+220,b.y+56+i*32,n,{size:11.5,w:600});tx(s,b.x+290,b.y+56+i*32,d,{size:10.5,fill:C.muted})});
+  },
+  rows:[
+   ['Header band, title, subtitle','same as Overview','<b>No slicers</b> on this page. Use the subtitle shape for the 4% line.'],
+   ['Matrix: cohort heatmap','36, 198 · 1200 × 858','Values → Background colour → Gradient: min <code>#FFF7EE</code>, max <code>#FF8700</code> (replaces white → dark blue). Because M0 = 100% would swamp the scale, set Maximum to a <b>Number</b> = 0.09 (9%). Font 13, row padding 3. Turn off totals (Row and Column subtotals off).'],
+   ['Card: Website Customers','1260, 198 · 624 × 165','Accent bar on, <code>#FF8700</code>. Label "Website customers".'],
+   ['Line: retention curve','1260, 387 · 624 × 330','Line <code>#FF8700</code>, width 4, markers on, Shade area on (transparency 88%). Y axis format %, 0–100%.'],
+   ['Donut: segments','1260, 741 · 624 × 315','Slices: One-time <code>#CDBFAE</code>, Repeat <code>#FFB066</code>, Loyal <code>#FF8700</code>, Prospect <code>#EFE3D3</code>. Inner radius 65%. Legend right. Detail labels: Percent of total, inside.'],
+  ]},
+{ title:'Promo lift comes from festival timing, not discount size',
+  sub:'Average daily revenue during each promotion vs the 14 days before · discounts are 10, 15 or 20%', slicers:false,
+  draw(s){
+    const p=[['Diwali Sale 2025 (website)',78,1],['Diwali Deals 2025 (Amazon)',71,1],['Diwali Quick Treats 2025',69,1],['Diwali Sale 2024 (website)',64,1],['Diwali Deals 2024 (Flipkart)',58,1],['Holi Sale 2025 (website)',34,1],['Raksha Bandhan Sale 2025',29,1],['Holi Deals 2024 (Amazon)',24,1],['Independence Day Sale 2025',9,0],['Republic Day Sale 2025',7,0],['Monsoon Munchies 2025',4,0],['Monsoon Munchies 2024',2,0]];
+    const b=card(s,24,132,560,572,'Revenue lift during promotion (top 12)');
+    hbar(s,{x:b.x,y:b.y+26,w:b.w,h:b.h-30},p.map(x=>[x[0],x[1],x[2]?C.orange:C.sand]),{lw:190,fs:10,max:85,fmt:v=>'+'+v+'%'});
+    legend(s,b.x+4,b.y+8,[['Festival promotion',C.orange],['Other promotion',C.sand]]);
+    const t=card(s,600,132,656,572,'Promotion details');
+    const rows=[['DIWALI25','website','20%','₹0.9L','₹1.6L','+78%'],['DIWALI25-AMZ','amazon','15%','₹0.9L','₹1.5L','+71%'],['DIWALI25-QC','quick_commerce','10%','₹0.9L','₹1.5L','+69%'],['DIWALI24','website','20%','₹0.7L','₹1.2L','+64%'],['DIWALI24-FK','flipkart','15%','₹0.7L','₹1.1L','+58%'],['HOLI25','website','15%','₹0.9L','₹1.2L','+34%'],['RAKHI25','website','15%','₹0.9L','₹1.2L','+29%'],['HOLI24-AMZ','amazon','15%','₹0.7L','₹0.9L','+24%'],['FREEDOM25','all','10%','₹0.9L','₹1.0L','+9%'],['REPUBLIC25','all','10%','₹0.8L','₹0.9L','+7%'],['MONSOON25','website','10%','₹0.9L','₹0.9L','+4%'],['MONSOON24','website','10%','₹0.7L','₹0.7L','+2%']];
+    matrixTable(s,t,['Promo','Channel','Discount','Daily before','Daily during','Lift'],rows.map(r=>({c:r,cell:[null,null,null,null,null,{fill:parseFloat(r[5])>40?C.orangeD:C.ink,w:700}]})),{cw:[130,130,90,104,104,70],rh:28});
+    tx(s,t.x,t.y+t.h-6,'Note: 20% and 10% discounts both appear at the top and bottom: timing explains lift, discount size does not.',{size:10,fill:C.muted});
+  },
+  rows:[
+   ['Header band, title, subtitle','same as Overview','No slicers.'],
+   ['Clustered bar: lift %','36, 198 · 840 × 858','Bars <code>#FF8700</code>. To grey out non-festival promos: add column <code>Is Festival Promo = CONTAINSSTRING(MART_PROMO_IMPACT[PROMO_NAME],"Diwali") || CONTAINSSTRING(MART_PROMO_IMPACT[PROMO_NAME],"Holi") || CONTAINSSTRING(MART_PROMO_IMPACT[PROMO_NAME],"Raksha")</code>, drag it to <b>Legend</b>, colour True <code>#FF8700</code>, False <code>#CDBFAE</code>. Data labels <code>+0%</code>. Filter Top N 12 by lift. Gridlines off.'],
+   ['Table: promotion details','900, 198 · 984 × 858','Theme gives black header + cream banding. Lift column → Font colour → rules: ≥ 0.4 → <code>#C25E00</code>, bold (Values → Font). Row padding 9. Sort by Lift descending.'],
+   ['Footnote text box (optional)','900, 1020 · 984 × 33','Segoe UI 14, #6B6257. States the "timing not discount" evidence.'],
+  ]},
+{ title:"Stock-outs spike every October before Diwali; restocking can't keep up with festival demand",
+  sub:'On 31 Dec 2025: 1 product out of stock, 3 overstocked · share of products by stock status, daily', slicers:false,
+  draw(s){
+    const st=[['Stock-out',C.red],['Low',C.orange],['Healthy',C.teal],['Overstock',C.stone]];
+    const b=card(s,24,132,900,330,'Products by stock status, monthly');
+    area100(s,b,st,24,(i,k)=>{const m=i%12,oct=m===9?1:m===10?.5:m===8?.3:0;return [1+oct*7,3+oct*6,30-oct*12,4+(m===11?3:0)][k]});
+    legend(s,b.x+b.w-300,b.y-22,st);
+    kpi(s,940,132,316,157,'Products out of stock','1',{t:'On 31 Dec 2025 · red if > 0',c:C.red},0);
+    rect(s,940,146,4,129,C.red,{rx:2});
+    kpi(s,940,305,316,157,'Overstocked products','3',{t:'More than 60 days of stock'},0);
+    rect(s,940,319,4,129,C.stone,{rx:2});
+    const t=card(s,24,478,1232,226,'Products needing action (status not Healthy, latest snapshot)');
+    const pill=v=>({'Stock-out':{bg:'#F6D5D1',fill:C.red,w:700},'Low':{bg:'#FFE6C7',fill:C.orangeD,w:700},'Overstock':{bg:'#E8E3DD',fill:C.char,w:700}}[v]);
+    const rw=[['Til Gud Chikki Winter Pack','Stock-out','0','14.2','0.0'],['Ice Popz Mango','Overstock','2,940','31.0','94.8'],['Go Desi Ice Popz','Overstock','2,210','28.4','77.8'],['Ice Popz Kala Khatta','Overstock','1,830','27.1','67.5'],['Mithai Gift Box','Low','96','16.8','5.7']];
+    matrixTable(s,t,['Product','Status','Units in stock','Avg daily sales','Days of stock left'],rw.map(r=>({c:r,cell:[null,pill(r[1]),null,null,{fill:parseFloat(r[4])<7?C.red:C.ink,w:600}]})),{cw:[420,180,200,200,204],rh:28});
+  },
+  rows:[
+   ['Header band, title, subtitle','same as Overview','No slicers. Product names in the drawing are placeholders: your table shows the real ones.'],
+   ['100% stacked area','36, 198 · 1350 × 495','Replaces red/orange/green/purple with brand-aligned colours: Stock-out <code>#C0392B</code>, Low <code>#FF8700</code>, Healthy <code>#108474</code>, Overstock <code>#8A7F72</code>. Legend top right, order Stock-out → Overstock.'],
+   ['Card: Products Out of Stock','1410, 198 · 474 × 236','Accent bar <code>#C0392B</code>. Callout colour → fx rules: &gt; 0 → <code>#C0392B</code>, = 0 → <code>#108474</code>.'],
+   ['Card: Overstocked products (new)','1410, 458 · 474 × 236','New measure: <code>Products Overstocked = CALCULATE(DISTINCTCOUNT(MART_INVENTORY_HEALTH[SKU_ID]), MART_INVENTORY_HEALTH[STOCK_STATUS] = "Overstock", LASTDATE(DIM_DATE[DATE_DAY]))</code>. Accent bar <code>#8A7F72</code>. Fills the space and backs the subtitle\'s "3 overstocked".'],
+   ['Table: products needing action','36, 717 · 1848 × 339','Status column → Background colour → rules: Stock-out <code>#F6D5D1</code>, Low <code>#FFE6C7</code>, Overstock <code>#E8E3DD</code>; Font colour rules: <code>#C0392B</code> / <code>#C25E00</code> / <code>#3D3935</code>. Days of stock left: font <code>#C0392B</code> when &lt; 7. Sort by Status.'],
+  ]},
+];
+
+/* ---------- build sections ---------- */
+const main=document.getElementById('main'),toc=document.getElementById('toc');
+specs.forEach((sp,i)=>{
+  const sec=document.createElement('section');sec.id='p'+(i+1);
+  sec.innerHTML=`<h2><span class="n">${i+1}</span>${PAGES[i]}</h2><p class="lead">Final title: “${sp.title}”</p>`;
+  const svg=el('svg',{viewBox:'0 0 1280 720',class:'canvas',role:'img','aria-label':PAGES[i]+' page mockup'});
+  sec.appendChild(svg);frame(svg,i,sp.title,sp.sub,sp.slicers);sp.draw(svg);
+  const h=document.createElement('h3');h.textContent='Recreate: position (X, Y · W × H) and formatting';sec.appendChild(h);
+  const t=document.createElement('table');t.className='spec';
+  t.innerHTML='<tr><th style="width:23%">Visual</th><th style="width:20%">Position</th><th>Formatting</th></tr>'+sp.rows.map(r=>`<tr><td>${r[0]}</td><td class="pos">${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+  sec.appendChild(t);main.appendChild(sec);
+  const a=document.createElement('a');a.href='#p'+(i+1);a.textContent=(i+1)+' · '+PAGES[i];toc.appendChild(a);
+});
+</script>
+</body>
+</html>

@@ -44,6 +44,35 @@ models:
                 min_value: 0
                 max_value: 100
 
+  - name: mart_promo_impact
+    description: >
+      Promotion lift (Q7) - average daily net revenue during each promo vs the 28 days
+      before, in the channels it ran on. Festival promos also include festival demand.
+      Grain - one row per promotion.
+    columns:
+      - name: promo_code
+        data_tests: [unique, not_null]
+      - name: revenue_lift_pct
+        description: (during / before - 1) x 100. NULL when there is no data before the promo.
+
+  - name: mart_inventory_health
+    description: >
+      Stock health (Q6) - stock on hand across warehouses vs recent demand.
+      Grain - one row per day x SKU.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [snapshot_date, sku_id]
+    columns:
+      - name: days_of_cover
+        description: Stock on hand / average daily units sold over the last 28 days.
+      - name: stock_status
+        description: Stock-out (any warehouse empty), Low (< 7 days cover), Overstock (> 60 days), else Healthy.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Stock-out", "Low", "Overstock", "Healthy"]
+
   - name: mart_market_landscape
     description: >
       Real Open Food Facts data - each brand's product count, typical sugar and energy per

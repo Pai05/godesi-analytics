@@ -66,8 +66,7 @@ models:
               arguments:
                 to: ref('dim_products')
                 field: sku_id
-              config:
-                severity: warn      # the 5 GD-9999 lines
+              # now passes: dim_products adds an "Unknown product" row for GD-9999
       - name: customer_id
         data_tests:
           - relationships:
