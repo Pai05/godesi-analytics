@@ -1,0 +1,62 @@
+# CI: on every pull request to main, build and test the whole dbt project in a
+# throw-away Snowflake schema (CI_PR_<number>), then drop that schema.
+# A red X on the pull request means a model failed or a test found bad data.
+name: dbt CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ["godesi/**", ".github/**", "requirements-dbt.txt"]
+  workflow_dispatch:            # "Run workflow" button in the Actions tab
+
+concurrency:                    # a new push to the same PR cancels the older run (saves credits)
+  group: dbt-ci-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  dbt-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: godesi
+    env:
+      DBT_PROFILES_DIR: ${{ github.workspace }}/.github/dbt
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      DBT_CI_SCHEMA: CI_PR_${{ github.event.pull_request.number || github.run_id }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dbt.txt
+
+      - name: Install dbt
+        run: pip install -r ../requirements-dbt.txt
+
+      - name: Write the Snowflake key to a temp file
+        env:
+          SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
+        run: |
+          umask 077
+          printf '%s\n' "$SNOWFLAKE_PRIVATE_KEY" > "$RUNNER_TEMP/snowflake_key.p8"
+          echo "SNOWFLAKE_PRIVATE_KEY_PATH=$RUNNER_TEMP/snowflake_key.p8" >> "$GITHUB_ENV"
+
+      - name: dbt deps
+        run: dbt deps
+
+      - name: dbt debug (connection check)
+        run: dbt debug --target ci
+
+      - name: dbt build (models + tests + snapshot + seeds)
+        run: dbt build --target ci
+
+      - name: Drop the CI schema
+        if: always()
+        run: dbt run-operation drop_ci_schema --target ci

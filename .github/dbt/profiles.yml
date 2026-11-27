@@ -1,0 +1,29 @@
+# dbt connection profile used ONLY by GitHub Actions (CI and the scheduled prod run).
+# No secrets in this file: the account and the private key come from GitHub Secrets,
+# which the workflows turn into environment variables.
+godesi:
+  target: ci
+  outputs:
+    ci:                                   # pull-request checks: a throw-away schema per PR
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: DBT_USER
+      private_key_path: "{{ env_var('SNOWFLAKE_PRIVATE_KEY_PATH') }}"
+      role: TRANSFORMER
+      warehouse: GODESI_WH
+      database: GODESI_ANALYTICS
+      schema: "{{ env_var('DBT_CI_SCHEMA', 'CI_MANUAL') }}"
+      threads: 4
+      query_tag: dbt_ci
+
+    prod:                                 # scheduled rebuild of the real schemas
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: DBT_USER
+      private_key_path: "{{ env_var('SNOWFLAKE_PRIVATE_KEY_PATH') }}"
+      role: TRANSFORMER
+      warehouse: GODESI_WH
+      database: GODESI_ANALYTICS
+      schema: STAGING                     # fallback only; models are routed by generate_schema_name
+      threads: 4
+      query_tag: dbt_prod_scheduled

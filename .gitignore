@@ -30,3 +30,6 @@ logs/
 
 # Local-only files (ODBC installer, raw extracts)
 data/
+
+# CI profile: no secrets, only env_var() references
+!.github/dbt/profiles.yml
