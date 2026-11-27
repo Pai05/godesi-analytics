@@ -33,3 +33,6 @@ data/
 
 # CI profile: no secrets, only env_var() references
 !.github/dbt/profiles.yml
+
+# Report PDF for the README (built from screenshots, no data)
+!docs/*.pdf
