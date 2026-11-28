@@ -158,6 +158,15 @@ flowchart LR
    The dbt profile lives outside the repo (`~/.dbt/profiles.yml`); [`.github/dbt/profiles.yml`](.github/dbt/profiles.yml)
    shows the shape, with the account and key read from environment variables.
 
+## How I built this
+
+I built this project with [Claude Code](https://claude.com/claude-code) as an AI coding assistant
+(commits it helped write carry a `Co-Authored-By: Claude` line). I made the design decisions (the
+layers, the star schema, which business questions to answer, the roles and the cost limits), and the
+results are checked rather than taken on trust: 141 dbt data tests, 2 unit tests, a reconciliation
+test from staging to the fact table, CI on every pull request, and
+[`checks/verify_data.sql`](checks/verify_data.sql), which compares the dashboard numbers with SQL on the marts.
+
 ## Tech stack
 
 Snowflake · dbt Core 1.12 (dbt-snowflake, dbt_utils) · SQL · Python (pandas) ·
